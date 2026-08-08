@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Precisão. Calculada. | Calculadora Contábil</title>
+<style>
+  :root{
+    --bg:#fbfbfd;
+    --bg-dark:#000000;
+    --ink:#1d1d1f;
+    --ink-soft:#86868b;
+    --blue:#0071e3;
+    --blue-hover:#0077ed;
+    --green:#1e8e3e;
+    --card:#ffffff;
+    --line:#d2d2d7;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none;}
+
+  /* NAV */
+  nav{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:saturate(180%) blur(20px);
+    background:rgba(251,251,253,0.8);
+    border-bottom:1px solid rgba(0,0,0,0.06);
+  }
+  .nav-inner{
+    max-width:980px;margin:0 auto;padding:14px 22px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .brand{font-size:15px;font-weight:600;letter-spacing:-0.01em;display:flex;align-items:center;gap:8px;}
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);}
+  .nav-links{display:flex;gap:28px;font-size:13px;color:var(--ink-soft);}
+  .nav-links a:hover{color:var(--ink);}
+
+  /* HERO */
+  .hero{
+    max-width:900px;margin:0 auto;
+    padding:90px 24px 40px;
+    text-align:center;
+  }
+  .eyebrow{
+    font-size:14px;font-weight:600;color:var(--blue);
+    letter-spacing:0.02em;margin-bottom:14px;
+  }
+  h1{
+    font-size:clamp(40px,7vw,72px);
+    font-weight:700;letter-spacing:-0.03em;line-height:1.05;
+    margin-bottom:18px;
+  }
+  h1 .thin{font-weight:400;color:var(--ink-soft);display:block;}
+  .hero p{
+    font-size:clamp(17px,2vw,21px);
+    color:var(--ink-soft);max-width:560px;margin:0 auto 34px;
+    line-height:1.5;
+  }
+  .cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--blue);color:#fff;padding:12px 24px;border-radius:980px;
+    font-size:15px;font-weight:500;border:none;cursor:pointer;transition:background .2s;
+  }
+  .btn-primary:hover{background:var(--blue-hover);}
+  .btn-ghost{
+    padding:12px 24px;font-size:15px;font-weight:500;color:var(--blue);
+    display:flex;align-items:center;gap:4px;
+  }
+
+  /* LIVE NUMBER DISPLAY */
+  .display-wrap{
+    max-width:720px;margin:50px auto 0;padding:0 24px;
+  }
+  .glass-card{
+    background:linear-gradient(180deg,#141414,#000);
+    border-radius:28px;padding:48px 32px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.35);
+    color:#fff;text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .glass-card::before{
+    content:'';position:absolute;top:-50%;left:-20%;width:140%;height:140%;
+    background:radial-gradient(circle at 30% 20%, rgba(0,113,227,0.25), transparent 60%);
+    pointer-events:none;
+  }
+  .glass-label{font-size:13px;color:#98989d;letter-spacing:0.02em;margin-bottom:10px;position:relative;}
+  .glass-number{
+    font-size:clamp(38px,8vw,64px);font-weight:700;letter-spacing:-0.02em;
+    font-variant-numeric:tabular-nums;position:relative;
+  }
+  .glass-sub{font-size:14px;color:#98989d;margin-top:10px;position:relative;}
+
+  /* SECTION LABEL */
+  .section-head{max-width:700px;margin:0 auto;text-align:center;padding:100px 24px 30px;}
+  .section-head h2{font-size:clamp(30px,4vw,44px);font-weight:700;letter-spacing:-0.02em;margin-bottom:10px;}
+  .section-head p{color:var(--ink-soft);font-size:17px;}
+
+  /* CALCULATOR */
+  .calc-wrap{max-width:640px;margin:0 auto;padding:0 24px 100px;}
+  .segmented{
+    display:flex;background:#e8e8ed;border-radius:12px;padding:4px;margin-bottom:28px;
+    gap:2px;
+  }
+  .segmented button{
+    flex:1;border:none;background:transparent;padding:9px 4px;border-radius:9px;
+    font-size:13px;font-weight:500;color:var(--ink-soft);cursor:pointer;
+    transition:all .25s ease;
+  }
+  .segmented button.active{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,0.15);}
+
+  .calc-card{
+    background:var(--card);border-radius:20px;padding:32px;
+    box-shadow:0 2px 20px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);
+  }
+  .calc-card h3{font-size:20px;font-weight:600;margin-bottom:4px;letter-spacing:-0.01em;}
+  .calc-card .desc{font-size:14px;color:var(--ink-soft);margin-bottom:24px;}
+
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block;font-size:13px;font-weight:500;color:var(--ink-soft);margin-bottom:6px;
+  }
+  .field input{
+    width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);
+    font-size:16px;font-family:inherit;background:#f5f5f7;color:var(--ink);
+    transition:border-color .2s, background .2s;
+  }
+  .field input:focus{outline:none;border-color:var(--blue);background:#fff;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+  .result-box{
+    margin-top:24px;padding:22px;border-radius:14px;
+    background:linear-gradient(135deg,#f5f9ff,#eef4ff);
+    border:1px solid rgba(0,113,227,0.12);
+  }
+  .result-box .r-label{font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;}
+  .result-box .r-value{font-size:30px;font-weight:700;color:var(--blue);letter-spacing:-0.01em;font-variant-numeric:tabular-nums;}
+  .result-box .r-note{font-size:13px;color:var(--ink-soft);margin-top:6px;}
+  .result-box.warn .r-value{color:#d70015;}
+  .result-box.ok .r-value{color:var(--green);}
+
+  .panel{display:none;}
+  .panel.active{display:block;animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* FEATURES */
+  .features{max-width:980px;margin:0 auto;padding:0 24px 100px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .feature{
+    background:var(--card);border-radius:18px;padding:26px 22px;border:1px solid rgba(0,0,0,0.05);
+  }
+  .feature .f-icon{
+    width:38px;height:38px;border-radius:10px;background:var(--blue);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;margin-bottom:14px;
+  }
+  .feature h4{font-size:16px;font-weight:600;margin-bottom:6px;letter-spacing:-0.01em;}
+  .feature p{font-size:13.5px;color:var(--ink-soft);line-height:1.5;}
+
+  footer{
+    text-align:center;padding:40px 24px 60px;border-top:1px solid rgba(0,0,0,0.06);
+    color:var(--ink-soft);font-size:12.5px;
+  }
+
+  @media(max-width:700px){
+    .features{grid-template-columns:1fr 1fr;}
+    .row2{grid-template-columns:1fr;}
+    .segmented{flex-wrap:wrap;}
+    .segmented button{flex:1 1 45%;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand"><span class="dot"></span>Cálculo.</div>
+    <div class="nav-links">
+      <a href="#calc">Calculadora</a>
+      <a href="#recursos">Recursos</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">CALCULADORA CONTÁBIL</div>
+  <h1>Números exatos.<span class="thin">Decisões claras.</span></h1>
+  <p>Juros, depreciação, ponto de equilíbrio e margem de contribuição — resolvidos na hora, com a precisão que a contabilidade exige.</p>
+  <div class="cta-row">
+    <button class="btn-primary" onclick="document.getElementById('calc').scrollIntoView()">Abrir calculadora</button>
+    <a href="#recursos" class="btn-ghost">Ver recursos ›</a>
+  </div>
+
+  <div class="display-wrap">
+    <div class="glass-card">
+      <div class="glass-label">Exemplo — Juros Compostos</div>
+      <div class="glass-number" id="heroNumber">R$ 0,00</div>
+      <div class="glass-sub">R$ 10.000 aplicados a 1,2% a.m. por 24 meses</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-head" id="calc">
+  <h2>Escolha o cálculo</h2>
+  <p>Quatro ferramentas essenciais do dia a dia contábil, em um só lugar.</p>
+</div>
+
+<div class="calc-wrap">
+  <div class="segmented">
+    <button class="active" onclick="showPanel('juros', this)">Juros Compostos</button>
+    <button onclick="showPanel('simples', this)">Juros Simples</button>
+    <button onclick="showPanel('deprec', this)">Depreciação</button>
+    <button onclick="showPanel('pe', this)">Ponto de Equilíbrio</button>
+    <button onclick="showPanel('margem', this)">Margem de Contribuição</button>
+  </div>
+
+  <div class="calc-card">
+
+    <!-- JUROS COMPOSTOS -->
+    <div class="panel active" id="panel-juros">
+      <h3>Juros Compostos</h3>
+      <div class="desc">Calcule o valor futuro de um capital aplicado a uma taxa periódica.</div>
+      <div class="field"><label>Capital inicial (R$)</label><input type="number" id="j_pv" value="10000" oninput="calcJuros()"></div>
+      <div class="row2">
+        <div class="field"><label>Taxa (% ao período)</label><input type="number" id="j_taxa" value="1.2" step="0.01" oninput="calcJuros()"></div>
+        <div class="field"><label>Períodos</label><input type="number" id="j_n" value="24" oninput="calcJuros()"></div>
+      </div>
+      <div class="result-box ok">
+        <div class="r-label">Montante final</div>
+        <div class="r-value" id="j_result">—</div>
+        <div class="r-note" id="j_note"></div>
+      </div>
+    </div>
+
+    <!-- JUROS SIMPLES -->
+    <div class="panel" id="panel-simples">
+      <h3>Juros Simples</h3>
+      <div class="desc">Calcule o valor futuro com juros incidindo apenas sobre o capital inicial.</div>
+      <div class="field"><label>Capital inicial (R$)</label><input type="number" id="s_pv" value="10000" oninput="calcSimples()"></div>
+      <div class="row2">
+        <div class="field"><label>Taxa (% ao período)</label><input type="number" id="s_taxa" value="1.2" step="0.01" oninput="calcSimples()"></div>
+        <div class="field"><label>Períodos</label><input type="number" id="s_n" value="24" oninput="calcSimples()"></div>
+      </div>
+      <div class="result-box ok">
+        <div class="r-label">Montante final</div>
+        <div class="r-value" id="s_result">—</div>
+        <div class="r-note" id="s_note"></div>
+      </div>
+    </div>
+
+    <!-- DEPRECIAÇÃO -->
+    <div class="panel" id="panel-deprec">
+      <h3>Depreciação Linear</h3>
+      <div class="desc">Distribui o custo de um ativo igualmente ao longo de sua vida útil.</div>
+      <div class="row2">
+        <div class="field"><label>Valor do ativo (R$)</label><input type="number" id="d_custo" value="50000" oninput="calcDeprec()"></div>
+        <div class="field"><label>Valor residual (R$)</label><input type="number" id="d_residual" value="5000" oninput="calcDeprec()"></div>
+      </div>
+      <div class="field"><label>Vida útil (anos)</label><input type="number" id="d_vida" value="10" oninput="calcDeprec()"></div>
+      <div class="result-box ok">
+        <div class="r-label">Depreciação anual</div>
+        <div class="r-value" id="d_result">—</div>
+        <div class="r-note" id="d_note"></div>
+      </div>
+    </div>
+
+    <!-- PONTO DE EQUILÍBRIO -->
+    <div class="panel" id="panel-pe">
+      <h3>Ponto de Equilíbrio</h3>
+      <div class="desc">Quantidade de unidades necessária para cobrir todos os custos.</div>
+      <div class="field"><label>Custos fixos totais (R$)</label><input type="number" id="p_fixo" value="20000" oninput="calcPE()"></div>
+      <div class="row2">
+        <div class="field"><label>Preço de venda (R$/un)</label><input type="number" id="p_preco" value="80" oninput="calcPE()"></div>
+        <div class="field"><label>Custo variável (R$/un)</label><input type="number" id="p_var" value="45" oninput="calcPE()"></div>
+      </div>
+      <div class="result-box ok">
+        <div class="r-label">Unidades para equilíbrio</div>
+        <div class="r-value" id="p_result">—</div>
+        <div class="r-note" id="p_note"></div>
+      </div>
+    </div>
+
+    <!-- MARGEM DE CONTRIBUIÇÃO -->
+    <div class="panel" id="panel-margem">
+      <h3>Margem de Contribuição</h3>
+      <div class="desc">Quanto cada unidade vendida contribui para cobrir custos fixos e gerar lucro.</div>
+      <div class="row2">
+        <div class="field"><label>Preço de venda (R$/un)</label><input type="number" id="m_preco" value="80" oninput="calcMargem()"></div>
+        <div class="field"><label>Custo variável (R$/un)</label><input type="number" id="m_var" value="45" oninput="calcMargem()"></div>
+      </div>
+      <div class="result-box ok">
+        <div class="r-label">Margem de contribuição</div>
+        <div class="r-value" id="m_result">—</div>
+        <div class="r-note" id="m_note"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section-head" id="recursos" style="padding-top:0;">
+  <h2>Feito para o dia a dia</h2>
+  <p>Rápido, preciso e sem planilhas complicadas.</p>
+</div>
+
+<div class="features">
+  <div class="feature">
+    <div class="f-icon">%</div>
+    <h4>Juros exatos</h4>
+    <p>Fórmulas de juros compostos aplicadas com precisão decimal completa.</p>
+  </div>
+  <div class="feature">
+    <div class="f-icon">Δ</div>
+    <h4>Depreciação clara</h4>
+    <p>Método linear, o mais usado na contabilidade societária e fiscal.</p>
+  </div>
+  <div class="feature">
+    <div class="f-icon">=</div>
+    <h4>Equilíbrio visível</h4>
+    <p>Descubra exatamente quantas unidades cobrem seus custos fixos.</p>
+  </div>
+  <div class="feature">
+    <div class="f-icon">＋</div>
+    <h4>Margem real</h4>
+    <p>Entenda o quanto sobra de cada venda antes do lucro operacional.</p>
+  </div>
+</div>
+
+<footer>
+  Calculadora Contábil — ferramenta educativa. Consulte sempre um contador para decisões oficiais.
+</footer>
+
+<script>
+function brl(v){
+  if(!isFinite(v)) return '—';
+  return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+
+function showPanel(name, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.segmented button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function calcJuros(){
+  const pv = parseFloat(document.getElementById('j_pv').value)||0;
+  const taxa = (parseFloat(document.getElementById('j_taxa').value)||0)/100;
+  const n = parseFloat(document.getElementById('j_n').value)||0;
+  const fv = pv * Math.pow(1+taxa, n);
+  document.getElementById('j_result').textContent = brl(fv);
+  document.getElementById('j_note').textContent = 'Juros acumulados: ' + brl(fv-pv);
+  document.getElementById('heroNumber').textContent = brl(fv);
+}
+
+function calcSimples(){
+  const pv = parseFloat(document.getElementById('s_pv').value)||0;
+  const taxa = (parseFloat(document.getElementById('s_taxa').value)||0)/100;
+  const n = parseFloat(document.getElementById('s_n').value)||0;
+  const fv = pv * (1 + taxa*n);
+  document.getElementById('s_result').textContent = brl(fv);
+  document.getElementById('s_note').textContent = 'Juros acumulados: ' + brl(fv-pv);
+}
+
+function calcDeprec(){
+  const custo = parseFloat(document.getElementById('d_custo').value)||0;
+  const residual = parseFloat(document.getElementById('d_residual').value)||0;
+  const vida = parseFloat(document.getElementById('d_vida').value)||1;
+  const anual = (custo-residual)/vida;
+  document.getElementById('d_result').textContent = brl(anual) + ' /ano';
+  document.getElementById('d_note').textContent = 'Taxa: ' + (100/vida).toFixed(1) + '% ao ano · Mensal: ' + brl(anual/12);
+}
+
+function calcPE(){
+  const fixo = parseFloat(document.getElementById('p_fixo').value)||0;
+  const preco = parseFloat(document.getElementById('p_preco').value)||0;
+  const varc = parseFloat(document.getElementById('p_var').value)||0;
+  const margem = preco - varc;
+  const box = document.getElementById('p_result').closest('.result-box');
+  if(margem<=0){
+    document.getElementById('p_result').textContent = 'Inviável';
+    document.getElementById('p_note').textContent = 'Custo variável maior ou igual ao preço de venda.';
+    box.classList.remove('ok'); box.classList.add('warn');
+    return;
+  }
+  box.classList.add('ok'); box.classList.remove('warn');
+  const qtd = fixo/margem;
+  document.getElementById('p_result').textContent = Math.ceil(qtd) + ' unidades';
+  document.getElementById('p_note').textContent = 'Faturamento de equilíbrio: ' + brl(qtd*preco);
+}
+
+function calcMargem(){
+  const preco = parseFloat(document.getElementById('m_preco').value)||0;
+  const varc = parseFloat(document.getElementById('m_var').value)||0;
+  const margem = preco - varc;
+  const pct = preco>0 ? (margem/preco*100) : 0;
+  document.getElementById('m_result').textContent = brl(margem) + ' /un';
+  document.getElementById('m_note').textContent = 'Equivale a ' + pct.toFixed(1) + '% do preço de venda';
+}
+
+// init
+calcJuros(); calcSimples(); calcDeprec(); calcPE(); calcMargem();
+</script>
+
+</body>
+</html>
